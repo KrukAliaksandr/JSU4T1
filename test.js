@@ -1,29 +1,21 @@
 const steps = require('./steps');
 const chai = require('chai').use(require('chai-spies'));
-const dataProvider = require('./dataProvider.json');
 const expect = chai.expect;
+const mocha = require('mocha');
 
-describe('tests final result of webdriver_async module ', () => {
+describe('tests simple github functions', () => {
 	let spyGo;
 
 	beforeEach(() => {
 		spyGo = chai.spy.on(steps, 'go');
 	});
 
-	afterEach(() => {
-	});
+	describe('gitHub test', () => {
 
-	describe('positive test', () => {
-
-		it(`the summation of [${element.data}] elements with result = [${element.result.add}]`, () => {
-			const actualResult = steps.go();
+		it('gitHub test', async function() {
+			const actualResult = await steps.go();
 			/* eslint-disable*/
-            expect(spyGo).to.be.a.spy;
-            expect(spyGo).to.have.been.called.once;
-            /* eslint-enable*/
-			expect(spyGo).to.have.been.called.with();
-			expect(actualResult).to.be.a('Number');
-			expect(actualResult).to.be.equal(element.result.add);
+			await expect(actualResult).to.be.not.equal(0);
 		});
 	});
 });

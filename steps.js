@@ -1,15 +1,15 @@
 const webdriver = require('selenium-webdriver');
 const driverCreator = require('./webDriver');
-const chai =  require('chai');
-const expect = chai.expect;
+const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 let driver;
 
 class testData {
-	constructor(login,password,repoName,repoDesc){
+	constructor(login, password, repoName, repoDesc) {
 		this.login = login;
+		this.name = login.replace('@gmail.com','');
 		this.password = password;
 		this.repoName = repoName;
 		this.repoDesc = repoDesc;
@@ -18,11 +18,12 @@ class testData {
 }
 
 async function go() {
-	const data = new testData('testautomationuser990@gmail.com','98979897aa',new Date().toLocaleString(),'And Another Repository');
+	const data = new testData('testautomationuser990@gmail.com', '98979897aa', new Date().toLocaleString(), 'And Another Repository');
 	driver = driverCreator.getDriverSingleton();
 	await login(data);
 	await createRepo(data);
-	await findRepo(data);
+	const results = await findRepo(data);
+	return results;
 }
 
 function closedriver() {
@@ -31,11 +32,15 @@ function closedriver() {
 
 async function login(data) {
 	await driver.get('https://github.com')
-	await driverCreator.findElementByLinkText('Sign in').click();
-	await driverCreator.findElementByName('login').sendKeys(data.login);
-	await driverCreator.findElementByName('password').sendKeys(data.pasword);
-	await driverCreator.findElementByName('commit').click();
-
+	let element = await driverCreator.findElementByLinkText('Sign in');
+	await element.click();
+	element = await driverCreator.findElementByName('login');
+	await element.sendKeys(`${data.login}`);
+	element = await driverCreator.findElementByName('password');
+	await element.click();
+	await element.sendKeys(`${data.password}`);
+	element = await driverCreator.findElementByName('commit')
+	await element.click();
 }
 
 async function createRepo(data) {
@@ -56,26 +61,12 @@ async function createRepo(data) {
 async function findRepo(data) {
 	await driver.navigate().back();
 	const searchField = await driverCreator.findElementByCss('.Header .header-search-input');
-	await searchField.sendKeys('Test');
+	await searchField.sendKeys(`${data.name}/`);
 	const allGitBtn = await driverCreator.findElementById('jump-to-suggestion-search-global');
 	await allGitBtn.click();
+	const results = await driver.findElements(webdriver.By.css('li[class=\'repo-list-item d-flex flex-column flex-md-row flex-justify-start py-4 public source\']'));
+	return results.length;
 }
-
-async function testAmazon (data){
-	await driver.get('https://amazon.com')
-	let element = await driverCreator.findElementByClassName('nav-a nav-a-2');
-	await element.click();
-	element = await driverCreator.findElementByClassName('a-button a-button-primary a-button-span12');
-	await element.click();
-	element = await driverCreator.findElementById('ap_email');
-	await element.sendKeys(data.login);
-	element = await driverCreator.findElementByClassName('ap_password');
-	await element.click();
-	element = await driverCreator.findElementById('signInSubmit');
-	await element.click();
-}
-
-go();
 
 module.exports = {
 	go
