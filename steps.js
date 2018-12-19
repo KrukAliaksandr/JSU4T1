@@ -1,23 +1,8 @@
 const webdriver = require('selenium-webdriver');
-const driverCreator = require('./webDriver');
+const driverCreator = require('./webDriverModule');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-
-const startLogIn =  driverCreator.findElementByLinkText('Sign in');
-const loginField =  driverCreator.findElementByName('login');
-const passwordField =  driverCreator.findElementByName('password');
-const logBtn =  driverCreator.findElementByName('commit')
-const navDropDownMenu =  driverCreator.findElementByClassName('HeaderNavlink name mt-1');
-const reposItem =  driverCreator.findElementByLinkText('Your repositories');
-const newRepoBtn =  driverCreator.findElementByClassName('btn btn-primary ml-3');
-const repoNameField =  driverCreator.findElementById('repository_name');
-const repoDescField =  driverCreator.findElementByCss('.form-group .form-control.long');
-const createBtn =  driverCreator.findElementByXPath('//button[@class=\'btn btn-primary first-in-line\']');
-const searchField =  driverCreator.findElementByCss('.Header .header-search-input');
-const allGitBtn =  driverCreator.findElementById('jump-to-suggestion-search-global');
-const results =  driver.findElements(webdriver.By.css('li[class=\'repo-list-item d-flex flex-column flex-md-row flex-justify-start py-4 public source\']'));
-let driver;
+let driver = driverCreator.getDriverSingleton();
 
 class testData {
 	constructor(login, password, repoName, repoDesc) {
@@ -29,60 +14,76 @@ class testData {
 	}
 }
 
-async function go() {
-	const data = new testData('testautomationuser990@gmail.com', '98979897aa', new Date().toLocaleString(), 'And Another Repository');
-	driver = driverCreator.getDriverSingleton();
-	await login(data);
-	await createRepo(data);
-	const results = await findRepo(data);
-	return results;
+ function initTestData() {
+	const dataInstance =  new testData('testautomationuser990@gmail.com', '98979897aa', new Date().toLocaleString(), 'And Another Repository');
+	return dataInstance;
+}
+
+async function initDriver() {
+	driverInstance = await driver;
+	return driverInstance;
 }
 
 function closedriver() {
 	driver.quit();
 }
 
-async function navToPage(data) {
+async function navToGitPage(data) {
 	await driver.get('https://github.com');
 }
-async function pressLogIn(data) {
+
+async function pressLogIn() {
+	const startLogIn = await driverCreator.findElementByLinkText('Sign in');
 	await startLogIn.click();
 }
+
 async function fillLoginAndPassword(data) {
+	const loginField = await driverCreator.findElementByName('login');
 	await loginField.sendKeys(`${data.login}`);
+	const passwordField = await driverCreator.findElementByName('password');
 	await passwordField.click();
 	await passwordField.sendKeys(`${data.password}`);
 }
-async function pressLogInBtn(data) {
+
+async function pressLogInBtn() {
+	const logBtn = await driverCreator.findElementByName('commit')
 	await logBtn.click();
 }
 
 async function navToMyRepos(data) {
+	const navDropDownMenu = await driverCreator.findElementByClassName('HeaderNavlink name mt-1');
 	await navDropDownMenu.click();
+	const reposItem = await driverCreator.findElementByLinkText('Your repositories');
 	await reposItem.click();
 }
 async function clickNewRepoButton(data) {
+	const newRepoBtn = await driverCreator.findElementByClassName('btn btn-primary ml-3');
 	await newRepoBtn.click();
 }
 async function fillRepositoryNameAndDescrFields(data) {
+	const repoNameField = await driverCreator.findElementById('repository_name');
 	await repoNameField.sendKeys(data.repoName);
+	const repoDescField = await driverCreator.findElementByCss('.form-group .form-control.long');
 	await repoDescField.sendKeys(data.repoDesc);
 }
 
 async function clickCreateRepoBtn(data) {
+	const createBtn = await driverCreator.findElementByXPath('//button[@class=\'btn btn-primary first-in-line\']');
 	await createBtn.click();
 }
 
 async function findRepo(data) {
 	await driver.navigate().back();
+	const searchField = await driverCreator.findElementByCss('.Header .header-search-input');
 	await searchField.sendKeys(`${data.name}/`);
+	const allGitBtn = await driverCreator.findElementById('jump-to-suggestion-search-global');
 	await allGitBtn.click();
+	const results = await driver.findElements(webdriver.By.css('li[class=\'repo-list-item d-flex flex-column flex-md-row flex-justify-start py-4 public source\']'));
 	return results.length;
 }
 
 module.exports = {
-	go,
-	navToPage,
+	navToGitPage,
 	pressLogIn,
 	fillLoginAndPassword,
 	pressLogInBtn,
@@ -90,5 +91,7 @@ module.exports = {
 	clickNewRepoButton,
 	fillRepositoryNameAndDescrFields,
 	clickCreateRepoBtn,
-	findRepo
+	findRepo,
+	initTestData,
+	initDriver
 }

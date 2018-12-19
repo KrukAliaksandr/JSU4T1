@@ -2,49 +2,44 @@ const steps = require('./steps');
 const chai = require('chai').use(require('chai-spies'));
 const expect = chai.expect;
 const mocha = require('mocha');
-const webdriver = require('selenium-webdriver');
+const testdata =  steps.initTestData();
 
-describe('tests simple github functions', () => {
-	let spyGo;
-
-	beforeEach(() => {
-		spyGo = chai.spy.on(steps, 'go');
+describe('gitHub test', () => {
+	const driver =  steps.initDriver();
+	console.log(testdata);
+	
+	it('start Log In', async function () {
+		await steps.navToGitPage();
+		await steps.pressLogIn();
 	});
 
-	describe('gitHub test', () => {
-
-		it('stat Log In', async function () {
-			steps.pressLogIn();
-		});
-
-		it('gitHub test', async function () {
-			steps.fillLoginAndPassword();
-		});
-
-		it('gitHub test', async function () {
-			steps.pressLogInBtn();
-		});
-
-		it('gitHub test', async function () {
-			steps.navToMyRepos();
-		});
-
-		it('gitHub test', async function () {
-			steps.clickNewRepoButton();
-		});
-
-		it('gitHub test', async function () {
-			steps.fillRepositoryNameAndDescrFields();
-		});
-
-		it('gitHub test', async function () {
-			steps.clickCreateRepoBtn();
-		});
-
-		it('gitHub test', async function () {
-			const repositoryCount = steps.findRepo();
-			expect(repositoryCount).not.to.be.equal(0, `expected to find at least one repo,found ${repositoryCount}`)
-		});
-
+	it('gitHub test', async function () {
+		await steps.fillLoginAndPassword(testdata);
 	});
+
+	it('gitHub test', async function () {
+		await steps.pressLogInBtn();
+	});
+
+	it('gitHub test', async function () {
+		await steps.navToMyRepos(testdata);
+	});
+
+	it('gitHub test', async function () {
+		await steps.clickNewRepoButton(testdata);
+	});
+
+	it('gitHub test', async function () {
+		await steps.fillRepositoryNameAndDescrFields(testdata);
+	});
+
+	it('gitHub test', async function () {
+		await steps.clickCreateRepoBtn(testdata);
+	});
+
+	it('gitHub test', async function () {
+		const repositoryCount = await steps.findRepo(testdata);
+		expect(repositoryCount).not.to.be.equal(0, `expected to find at least one repo,found ${repositoryCount}`)
+	});
+
 });

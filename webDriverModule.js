@@ -37,7 +37,7 @@ const findElementByXPath = async function findElementByXPath( xPath) {
 	return elem;
 };
 
-const findElementByLinkText = async function findElementByLinkText( linkText) {
+const findElementByLinkText = async function findElementByLinkText(linkText) {
 	const elem = await driverSingleton.wait(webdriver.until.elementLocated(webdriver.By.linkText(linkText)), 5000);
 	return elem;
 };
