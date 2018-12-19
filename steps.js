@@ -4,17 +4,29 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
+const startLogIn =  driverCreator.findElementByLinkText('Sign in');
+const loginField =  driverCreator.findElementByName('login');
+const passwordField =  driverCreator.findElementByName('password');
+const logBtn =  driverCreator.findElementByName('commit')
+const navDropDownMenu =  driverCreator.findElementByClassName('HeaderNavlink name mt-1');
+const reposItem =  driverCreator.findElementByLinkText('Your repositories');
+const newRepoBtn =  driverCreator.findElementByClassName('btn btn-primary ml-3');
+const repoNameField =  driverCreator.findElementById('repository_name');
+const repoDescField =  driverCreator.findElementByCss('.form-group .form-control.long');
+const createBtn =  driverCreator.findElementByXPath('//button[@class=\'btn btn-primary first-in-line\']');
+const searchField =  driverCreator.findElementByCss('.Header .header-search-input');
+const allGitBtn =  driverCreator.findElementById('jump-to-suggestion-search-global');
+const results =  driver.findElements(webdriver.By.css('li[class=\'repo-list-item d-flex flex-column flex-md-row flex-justify-start py-4 public source\']'));
 let driver;
 
 class testData {
 	constructor(login, password, repoName, repoDesc) {
 		this.login = login;
-		this.name = login.replace('@gmail.com','');
+		this.name = login.replace('@gmail.com', '');
 		this.password = password;
 		this.repoName = repoName;
 		this.repoDesc = repoDesc;
 	}
-
 }
 
 async function go() {
@@ -30,44 +42,53 @@ function closedriver() {
 	driver.quit();
 }
 
-async function login(data) {
-	await driver.get('https://github.com')
-	let element = await driverCreator.findElementByLinkText('Sign in');
-	await element.click();
-	element = await driverCreator.findElementByName('login');
-	await element.sendKeys(`${data.login}`);
-	element = await driverCreator.findElementByName('password');
-	await element.click();
-	await element.sendKeys(`${data.password}`);
-	element = await driverCreator.findElementByName('commit')
-	await element.click();
+async function navToPage(data) {
+	await driver.get('https://github.com');
+}
+async function pressLogIn(data) {
+	await startLogIn.click();
+}
+async function fillLoginAndPassword(data) {
+	await loginField.sendKeys(`${data.login}`);
+	await passwordField.click();
+	await passwordField.sendKeys(`${data.password}`);
+}
+async function pressLogInBtn(data) {
+	await logBtn.click();
 }
 
-async function createRepo(data) {
-	const navDropDownMenu = await driverCreator.findElementByClassName('HeaderNavlink name mt-1');
+async function navToMyRepos(data) {
 	await navDropDownMenu.click();
-	const reposItem = await driverCreator.findElementByLinkText('Your repositories');
 	await reposItem.click();
-	const newRepoBtn = await driverCreator.findElementByClassName('btn btn-primary ml-3');
+}
+async function clickNewRepoButton(data) {
 	await newRepoBtn.click();
-	const repoNameField = await driverCreator.findElementById('repository_name');
+}
+async function fillRepositoryNameAndDescrFields(data) {
 	await repoNameField.sendKeys(data.repoName);
-	const repoDescField = await driverCreator.findElementByCss('.form-group .form-control.long');
 	await repoDescField.sendKeys(data.repoDesc);
-	const createBtn = await driverCreator.findElementByXPath('//button[@class=\'btn btn-primary first-in-line\']');
+}
+
+async function clickCreateRepoBtn(data) {
 	await createBtn.click();
 }
 
 async function findRepo(data) {
 	await driver.navigate().back();
-	const searchField = await driverCreator.findElementByCss('.Header .header-search-input');
 	await searchField.sendKeys(`${data.name}/`);
-	const allGitBtn = await driverCreator.findElementById('jump-to-suggestion-search-global');
 	await allGitBtn.click();
-	const results = await driver.findElements(webdriver.By.css('li[class=\'repo-list-item d-flex flex-column flex-md-row flex-justify-start py-4 public source\']'));
 	return results.length;
 }
 
 module.exports = {
-	go
+	go,
+	navToPage,
+	pressLogIn,
+	fillLoginAndPassword,
+	pressLogInBtn,
+	navToMyRepos,
+	clickNewRepoButton,
+	fillRepositoryNameAndDescrFields,
+	clickCreateRepoBtn,
+	findRepo
 }
